@@ -1,0 +1,17 @@
+﻿@page
+@model InnAndDragons.Razor.Pages.CharactersModel
+@{
+}
+
+<p>All character infos</p>
+
+
+
+@foreach (var character in Model.characters)
+{
+    <div>
+        <div>Id: @character.id</div>
+        <div>Name: @character.name</div>
+        <div>Level: @character.level</div>
+    </div>
+}
