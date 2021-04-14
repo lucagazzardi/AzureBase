@@ -39,7 +39,7 @@ namespace InnAndDragons.WebAPI
             services.AddCors(options =>
             {
                 options.AddPolicy(name: "AllowAnyOrigin",                    
-                    builder => builder.AllowAnyOrigin());
+                    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             });
         }
 

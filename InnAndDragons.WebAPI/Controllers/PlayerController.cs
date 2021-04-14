@@ -25,14 +25,14 @@ namespace InnAndDragons.WebAPI.Controllers
 
         [Route("list")]
         [HttpGet]
-        public IActionResult GetéPlayers()
+        public IActionResult GetPlayers()
         {
-            return Ok(_logicHandler.GetPlayers());            
+            return Ok(_logicHandler.GetPlayers());
         }
 
         [Route("create")]
-        [HttpGet]
-        public IActionResult CreatePlayer(Player player)
+        [HttpPost]
+        public IActionResult CreatePlayer([FromBody] Player player)
         {
             _logicHandler.CreatePlayer(player);
 

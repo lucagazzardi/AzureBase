@@ -44,11 +44,9 @@ namespace InnAndDragons.WebAPI.Controllers
         }
 
         [HttpPut("add/experience/{exp}/{id}")]
-        public IActionResult AddExperience([FromQuery] decimal exp, Guid id)
+        public IActionResult AddExperience(decimal exp, Guid id)
         {
-            _logicHandler.AddExperience(exp, id);
-
-            return Ok();
+            return Ok(_logicHandler.AddExperience(exp, id));
         }
 
         [HttpDelete("remove/{id}")]

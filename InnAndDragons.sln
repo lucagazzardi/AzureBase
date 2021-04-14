@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnAndDragons.DataBusiness"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnAndDragons.Razor", "InnAndDragons.Razor\InnAndDragons.Razor.csproj", "{522DB6ED-0B89-4533-BB37-BC1BFCD38333}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnAndDragons.UI", "InnAndDragons.UI\InnAndDragons.UI.csproj", "{1C92BE80-EDA1-4CE0-8ACC-4D97BCBA279C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnAndDragons.UI", "InnAndDragons.UI\InnAndDragons.UI.csproj", "{1C92BE80-EDA1-4CE0-8ACC-4D97BCBA279C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

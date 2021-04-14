@@ -16,7 +16,7 @@ namespace InnAndDragons.DataBusiness.Business
         List<Character> GetAll();
         Character GetCharacter(Guid id);
         void CreateCharacter(Character character);
-        void AddExperience(decimal exp, Guid id);
+        Character AddExperience(decimal exp, Guid id);
         void Remove(Guid id);
     }
     public class LogicHandler : ILogicHandler
@@ -28,6 +28,7 @@ namespace InnAndDragons.DataBusiness.Business
 
         public void CreatePlayer(Player player)
         {
+            player.id = Guid.NewGuid();
             Players.playersList.Add(player);
         }
 
@@ -47,10 +48,12 @@ namespace InnAndDragons.DataBusiness.Business
             Characters.charactersList.Add(character);
         }
 
-        public void AddExperience(decimal exp, Guid id)
+        public Character AddExperience(decimal exp, Guid id)
         {
             var character = Characters.charactersList.Single(x => Guid.Equals(x.id, id));
             character.experience += exp;
+
+            return character;
         }
 
         public void Remove(Guid id)

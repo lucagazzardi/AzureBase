@@ -1,13 +1,22 @@
 ﻿@page "/characters"
 
-@using InnAndDragons.DataBusiness.Models;
 @using Microsoft.Extensions.Configuration;
 @inject HttpClient Http;
 @inject IConfiguration Configuration; 
 
-<h1>Weather forecast</h1>
+<h1>Lista dei personaggi</h1>
 
-<p>This component demonstrates fetching data from the server.</p>
+<p>Questo è l'elenco dei personaggi</p>
+
+<Divider />
+
+<Button Color="Color.Primary" Clicked="@ShowModal"><span class="oi oi-plus" aria-hidden="true"></span><span style="margin-left:5px">Aggiungi</span></Button>
+
+<Divider />
+
+<AddCharacterModal @ref="addNewModal"/>
+<ConfirmModal CharacterId="currentCharacter" OnIsConfirmed="@RemoveCharacter" @ref="confirmModal" />
+
 
 @if (characters == null)
 {
@@ -15,34 +24,66 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Livello</th>
-                <th>Esperienza</th>
-                <th>Proprietario</th>
-            </tr>
-        </thead>
-        <tbody>
+    <Table Hoverable="true">
+        <TableHeader ThemeContrast="ThemeContrast.Dark">
+            <TableRow>
+                <TableHeaderCell>Rimuovi</TableHeaderCell>
+                <TableHeaderCell>Nome</TableHeaderCell>
+                <TableHeaderCell>Livello</TableHeaderCell>
+                <TableHeaderCell>Classe</TableHeaderCell>
+                <TableHeaderCell>Razza</TableHeaderCell>
+                <TableHeaderCell>Esperienza</TableHeaderCell>
+                <TableHeaderCell>Proprietario</TableHeaderCell>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
             @foreach (var character in characters)
             {
-                <tr>
-                    <td>@character.name</td>
-                    <td>@character.level</td>
-                    <td>@character.experience</td>
-                    <td>@character.owner</td>
-                </tr>
+                currentCharacter = character.id;
+                <TableRow>
+                    <TableHeaderCell><Button Color="Color.Danger" Clicked="@ShowConfirmation"><span class="oi oi-trash" aria-hidden="true"></span></Button></TableHeaderCell>
+                    <TableHeaderCell Style="vertical-align:middle">@character.name</TableHeaderCell>
+                    <TableHeaderCell Style="vertical-align:middle">@character.level</TableHeaderCell>
+                    <TableHeaderCell Style="vertical-align:middle">@character.classe</TableHeaderCell>
+                    <TableHeaderCell Style="vertical-align:middle">@character.race</TableHeaderCell>
+                    <TableHeaderCell Style="vertical-align:middle">@character.experience</TableHeaderCell>
+                    <TableHeaderCell Style="vertical-align:middle">@character.owner</TableHeaderCell>
+                </TableRow>
             }
-        </tbody>
-    </table>
+        </TableBody>
+    </Table>
 }
 
 @code {
+    private AddCharacterModal addNewModal;
+    private ConfirmModal confirmModal;
     private List<Character> characters;
+    private Guid currentCharacter;
 
     protected override async Task OnInitializedAsync()
-    {        
-        characters = await Http.GetFromJsonAsync<List<Character>>(string.Concat(Configuration["AzureUrl"], "api/character/getall"));
+    {
+        await GetCharacters();
+    }
+
+    private void ShowModal()
+    {
+        addNewModal.ShowModal();
+    }
+
+    private void ShowConfirmation()
+    {
+        confirmModal.ShowModal();
+    }
+
+    private async Task GetCharacters()
+    {
+        characters = await Http.GetFromJsonAsync<List<Character>>(string.Concat(Configuration["AzureUrl"], $"api/character/list"));
+    }
+
+    private async Task RemoveCharacter(Guid guid)
+    {
+        await Http.DeleteAsync(string.Concat(Configuration["AzureUrl"], $"api/character/remove/{guid}"));
+
+        await GetCharacters();
     }
 }

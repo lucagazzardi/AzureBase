@@ -1,0 +1,40 @@
+﻿
+<Modal @ref="modalRef">
+    <ModalContent IsCentered="true">
+        <ModalHeader>
+            <ModalTitle>Conferma eliminazione</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            <p>Sei sicuro di voler cancellare il personaggio?</p>
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="(() => HideModal(false))">Annulla</Button>
+            <Button Color="Color.Primary" Clicked="(() => HideModal(true))">Conferma</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+@code {
+
+    private Modal modalRef;
+
+    [Parameter]
+    public EventCallback<Guid> OnIsConfirmed { get; set; }
+
+    [Parameter]
+    public Guid CharacterId { get; set; }
+
+    public void ShowModal()
+    {
+        modalRef.Show();
+    }
+
+    public async Task HideModal(bool isConfirmed)
+    {
+        modalRef.Hide();
+        if(isConfirmed)
+            await OnIsConfirmed.InvokeAsync(CharacterId);
+    }
+
+}

@@ -49,10 +49,5 @@ namespace InnAndDragons.DataBusiness.Models
         public decimal experience { get; set; }
 
         public string owner { get; set; }
-
-        public Character() 
-        {
-            id = Guid.NewGuid();
-        }
     }
 }

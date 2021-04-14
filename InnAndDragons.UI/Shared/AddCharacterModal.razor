@@ -1,0 +1,73 @@
+﻿@using Microsoft.Extensions.Configuration;
+
+@inject HttpClient Http;
+@inject IConfiguration Configuration;
+
+<Modal @ref="modalRef">
+    <ModalContent IsCentered="true">
+        <ModalHeader>
+            <ModalTitle>Aggiungi un personaggio</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            <Field>
+                <FieldLabel>Nome</FieldLabel>
+                <TextEdit @bind-Text="@newCharacter.name" Placeholder="Nome..." />
+            </Field>
+            @*<Field>
+                    <FieldLabel>Classe</FieldLabel>
+                    <TextEdit @bind-Text="@newCharacter.classe" Placeholder="Classe..." />
+                </Field>
+                <Field>
+                    <FieldLabel>Razza</FieldLabel>
+                    <TextEdit @bind-Text="@newCharacter.race" Placeholder="Razza..." />
+                </Field>*@
+            <Field>
+                <FieldLabel>Livello</FieldLabel>
+                <NumericEdit @bind-Value="@newCharacter.level" TValue="int" />
+            </Field>
+            <Field>
+                <FieldLabel>Esperienza</FieldLabel>
+                <NumericEdit @bind-Value="@newCharacter.experience" TValue="decimal" />
+            </Field>
+            <Field>
+                <FieldLabel>Proprietario</FieldLabel>
+                <TextEdit @bind-Text="@newCharacter.owner" Placeholder="Proprietario..." />
+            </Field>
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="(() => HideModal(false))">Annulla</Button>
+            <Button Color="Color.Primary" Clicked="(() => HideModal(true))">Aggiungi</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+@code {
+
+    private Character newCharacter { get; set; }
+
+    private Modal modalRef;
+
+    protected override void OnInitialized()
+    {
+        newCharacter = new Character();
+    }
+
+    public void ShowModal()
+    {
+        modalRef.Show();
+    }
+
+    public async Task HideModal(bool isConfirmed)
+    {
+        modalRef.Hide();
+        if (isConfirmed)
+        {
+            newCharacter.race = Race.Umano;
+            newCharacter.classe = Class.Guerriero;
+            await Http.PostAsJsonAsync<Character>(string.Concat(Configuration["AzureUrl"], $"api/character/create"), newCharacter);
+        }
+
+    }
+
+}
