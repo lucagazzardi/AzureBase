@@ -1,0 +1,66 @@
+﻿@page "/players"
+
+@using Microsoft.Extensions.Configuration;
+@inject HttpClient Http;
+@inject IConfiguration Configuration;
+
+<h1>Giocatori</h1>
+
+<AddPlayerModal OnPlayerAdd="@GetPlayers" @ref="addNewModal" />
+
+<Divider />
+
+@if (players == null)
+{
+    <Layout>
+        <LayoutContent Style="text-align:center">
+            <Figure Size="FigureSize.Is48x48">
+                <FigureImage Source="loader.svg" AlternateText="Loader" />
+            </Figure>
+        </LayoutContent>
+    </Layout>    
+}
+else
+{  
+    <Button Color="Color.Dark" Clicked="@ShowAddPlayerModal"><Icon Name="IconName.Add" /><span style="margin-left:5px">Crea</span></Button>
+
+    <Table Margin="Margin.Is2.FromTop" Hoverable="true">
+        <TableHeader ThemeContrast="ThemeContrast.Dark">
+            <TableRow>
+                <TableHeaderCell>Nome</TableHeaderCell>
+                <TableHeaderCell>Email</TableHeaderCell>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            @foreach (var player in players)
+            {
+                <TableRow>
+                    <TableHeaderCell Style="vertical-align:middle">@player.name</TableHeaderCell>
+                    <TableHeaderCell Style="vertical-align:middle">@player.email</TableHeaderCell>
+                </TableRow>
+            }
+        </TableBody>
+    </Table>
+}
+
+@code {
+
+    private List<Player> players;
+    private AddPlayerModal addNewModal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPlayers();
+    }
+
+    private void ShowAddPlayerModal()
+    {
+        addNewModal.ShowModal();
+    }
+
+    private async Task GetPlayers()
+    {
+        players = await Http.GetFromJsonAsync<List<Player>>(string.Concat(Configuration["AzureUrl"], $"api/player/list"));
+    }
+
+}

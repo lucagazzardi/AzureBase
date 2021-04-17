@@ -6,32 +6,45 @@
 <Modal @ref="modalRef">
     <ModalContent IsCentered="true">
         <ModalHeader>
-            <ModalTitle>Aggiungi un personaggio</ModalTitle>
+            <ModalTitle>Crea un personaggio</ModalTitle>
             <CloseButton />
         </ModalHeader>
         <ModalBody>
             <Field>
-                <FieldLabel>Nome</FieldLabel>
+                <FieldLabel Style="font-weight:bold">Nome</FieldLabel>
                 <TextEdit @bind-Text="@newCharacter.name" Placeholder="Nome..." />
             </Field>
-            @*<Field>
-                    <FieldLabel>Classe</FieldLabel>
-                    <TextEdit @bind-Text="@newCharacter.classe" Placeholder="Classe..." />
-                </Field>
-                <Field>
-                    <FieldLabel>Razza</FieldLabel>
-                    <TextEdit @bind-Text="@newCharacter.race" Placeholder="Razza..." />
-                </Field>*@
+
             <Field>
-                <FieldLabel>Livello</FieldLabel>
+                <FieldLabel Style="font-weight:bold">Classe</FieldLabel>
+                <Select @bind-SelectedValue="@newClasse" TValue="string">
+                    @foreach (string classe in Enum.GetNames(typeof(Class)))
+                    {
+                        <SelectItem Value="@classe">@classe</SelectItem>
+                    }
+                </Select>
+            </Field>
+
+            <Field>
+                <FieldLabel Style="font-weight:bold">Razza</FieldLabel>
+                <Select @bind-SelectedValue="@newRace" TValue="string">
+                    @foreach (string race in Enum.GetNames(typeof(Race)))
+                    {
+                        <SelectItem Value="@race">@race</SelectItem>
+                    }
+                </Select>
+            </Field>
+
+            <Field>
+                <FieldLabel Style="font-weight:bold">Livello</FieldLabel>
                 <NumericEdit @bind-Value="@newCharacter.level" TValue="int" />
             </Field>
             <Field>
-                <FieldLabel>Esperienza</FieldLabel>
+                <FieldLabel Style="font-weight:bold">Esperienza</FieldLabel>
                 <NumericEdit @bind-Value="@newCharacter.experience" TValue="decimal" />
             </Field>
             <Field>
-                <FieldLabel>Proprietario</FieldLabel>
+                <FieldLabel Style="font-weight:bold">Proprietario</FieldLabel>
                 <TextEdit @bind-Text="@newCharacter.owner" Placeholder="Proprietario..." />
             </Field>
         </ModalBody>
@@ -45,8 +58,13 @@
 @code {
 
     private Character newCharacter { get; set; }
+    private string newClasse { get; set; }
+    private string newRace { get; set; }
 
     private Modal modalRef;
+
+    [Parameter]
+    public EventCallback OnCharacterAdded { get; set; }
 
     protected override void OnInitialized()
     {
@@ -60,14 +78,14 @@
 
     public async Task HideModal(bool isConfirmed)
     {
-        modalRef.Hide();
         if (isConfirmed)
         {
-            newCharacter.race = Race.Umano;
-            newCharacter.classe = Class.Guerriero;
+            newCharacter.race = (Race)Enum.Parse(typeof(Race), newRace);
+            newCharacter.classe = (Class)Enum.Parse(typeof(Class), newClasse);
             await Http.PostAsJsonAsync<Character>(string.Concat(Configuration["AzureUrl"], $"api/character/create"), newCharacter);
+            await OnCharacterAdded.InvokeAsync();
         }
-
+        modalRef.Hide();
     }
 
 }

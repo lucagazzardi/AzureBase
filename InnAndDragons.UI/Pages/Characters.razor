@@ -2,32 +2,36 @@
 
 @using Microsoft.Extensions.Configuration;
 @inject HttpClient Http;
-@inject IConfiguration Configuration; 
+@inject IConfiguration Configuration;
 
-<h1>Lista dei personaggi</h1>
-
-<p>Questo è l'elenco dei personaggi</p>
+<h1>Personaggi</h1>
 
 <Divider />
 
-<Button Color="Color.Primary" Clicked="@ShowModal"><span class="oi oi-plus" aria-hidden="true"></span><span style="margin-left:5px">Aggiungi</span></Button>
-
-<Divider />
-
-<AddCharacterModal @ref="addNewModal"/>
-<ConfirmModal CharacterId="currentCharacter" OnIsConfirmed="@RemoveCharacter" @ref="confirmModal" />
+<AddCharacterModal OnCharacterAdded="@GetCharacters" @ref="addNewModal" />
+<DeleteModal OnIsConfirmed="@GetCharacters" @ref="deleteModal" />
+<DetailCharacterModal @ref="detailModal" />
+<AddExperienceModal OnExpAdded="@GetCharacters" @ref="addExpModal" />
 
 
 @if (characters == null)
 {
-    <p><em>Loading...</em></p>
+    <Layout>
+        <LayoutContent Style="text-align:center">
+            <Figure Size="FigureSize.Is48x48">
+                <FigureImage Source="loader.svg" AlternateText="Loader" />
+            </Figure>
+        </LayoutContent>
+    </Layout>
 }
 else
 {
-    <Table Hoverable="true">
+    <Button Color="Color.Dark" Clicked="@ShowAddModal"><Icon Name="IconName.Add" /><span style="margin-left:5px">Crea</span></Button>
+
+    <Table Margin="Margin.Is2.FromTop" Hoverable="true">
         <TableHeader ThemeContrast="ThemeContrast.Dark">
             <TableRow>
-                <TableHeaderCell>Rimuovi</TableHeaderCell>
+                <TableHeaderCell></TableHeaderCell>
                 <TableHeaderCell>Nome</TableHeaderCell>
                 <TableHeaderCell>Livello</TableHeaderCell>
                 <TableHeaderCell>Classe</TableHeaderCell>
@@ -39,9 +43,18 @@ else
         <TableBody>
             @foreach (var character in characters)
             {
-                currentCharacter = character.id;
                 <TableRow>
-                    <TableHeaderCell><Button Color="Color.Danger" Clicked="@ShowConfirmation"><span class="oi oi-trash" aria-hidden="true"></span></Button></TableHeaderCell>
+                    <TableHeaderCell Style="text-align: center">
+                        <Tooltip Text="Dettaglio" Placement="Placement.Top">
+                            <Button Size="Size.ExtraSmall" Clicked="(() => ShowDetailModal(character.id))"><Icon Style="color:#343a40" Name="IconName.InfoCircle" /></Button>
+                        </Tooltip>
+                        <Tooltip Text="Aggiungi esperienza" Placement="Placement.Top">
+                            <Button Size="Size.ExtraSmall" Clicked="(() => ShowExpModal(character.id, character.name, character.experience))"><Icon Style="color:#343a40" Name="IconName.Star" /></Button>
+                        </Tooltip>
+                        <Tooltip Text="Elimina" Placement="Placement.Top">
+                            <Button Size="Size.ExtraSmall" Clicked="(() => ShowConfirmation(character.id))"><Icon Style="color:#343a40" Name="IconName.Delete" /></Button>
+                        </Tooltip>
+                    </TableHeaderCell>
                     <TableHeaderCell Style="vertical-align:middle">@character.name</TableHeaderCell>
                     <TableHeaderCell Style="vertical-align:middle">@character.level</TableHeaderCell>
                     <TableHeaderCell Style="vertical-align:middle">@character.classe</TableHeaderCell>
@@ -56,23 +69,34 @@ else
 
 @code {
     private AddCharacterModal addNewModal;
-    private ConfirmModal confirmModal;
+    private DeleteModal deleteModal;
+    private DetailCharacterModal detailModal;
+    private AddExperienceModal addExpModal;
     private List<Character> characters;
-    private Guid currentCharacter;
 
     protected override async Task OnInitializedAsync()
     {
         await GetCharacters();
     }
 
-    private void ShowModal()
+    private void ShowAddModal()
     {
         addNewModal.ShowModal();
     }
 
-    private void ShowConfirmation()
+    private void ShowConfirmation(Guid characterId)
     {
-        confirmModal.ShowModal();
+        deleteModal.ShowModal(characterId);
+    }
+
+    private async Task ShowDetailModal(Guid characterId)
+    {
+        await detailModal.ShowModal(characterId);
+    }
+
+    private void ShowExpModal(Guid guid, string name, decimal exp)
+    {
+        addExpModal.ShowModal(guid, name, exp);
     }
 
     private async Task GetCharacters()
@@ -80,10 +104,4 @@ else
         characters = await Http.GetFromJsonAsync<List<Character>>(string.Concat(Configuration["AzureUrl"], $"api/character/list"));
     }
 
-    private async Task RemoveCharacter(Guid guid)
-    {
-        await Http.DeleteAsync(string.Concat(Configuration["AzureUrl"], $"api/character/remove/{guid}"));
-
-        await GetCharacters();
-    }
 }

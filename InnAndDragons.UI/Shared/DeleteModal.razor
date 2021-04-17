@@ -1,4 +1,9 @@
 ﻿
+@using Microsoft.Extensions.Configuration;
+
+@inject HttpClient Http;
+@inject IConfiguration Configuration;
+
 <Modal @ref="modalRef">
     <ModalContent IsCentered="true">
         <ModalHeader>
@@ -22,19 +27,22 @@
     [Parameter]
     public EventCallback<Guid> OnIsConfirmed { get; set; }
 
-    [Parameter]
     public Guid CharacterId { get; set; }
 
-    public void ShowModal()
+    public void ShowModal(Guid characterId)
     {
+        CharacterId = characterId;
         modalRef.Show();
     }
 
     public async Task HideModal(bool isConfirmed)
     {
-        modalRef.Hide();
-        if(isConfirmed)
+        if (isConfirmed)
+        {
+            await Http.DeleteAsync(string.Concat(Configuration["AzureUrl"], $"api/character/remove/{CharacterId}"));
             await OnIsConfirmed.InvokeAsync(CharacterId);
+        }
+        modalRef.Hide();
     }
 
 }

@@ -1,0 +1,73 @@
+﻿
+@using Microsoft.Extensions.Configuration;
+
+@inject HttpClient Http;
+@inject IConfiguration Configuration;
+
+<Modal @ref="modalRef">
+    <ModalContent IsCentered="true">
+        <ModalHeader>
+            <ModalTitle>Aggiungi esperienza</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            <Card>
+                <CardHeader>
+                    <CardTitle Margin="Margin.Is0" Size="3" Style="font-weight:bold">
+                        @Name
+                    </CardTitle>
+                </CardHeader>
+                <CardBody>
+                    <CardText>
+                        <Field>
+                            <FieldLabel Style="font-weight:bold">Esperienza attuale</FieldLabel>
+                            <FieldBody><TextEdit ReadOnly="true" Text="@Exp.ToString()"></TextEdit></FieldBody>
+                        </Field>
+                        <Field>
+                            <FieldLabel Style="font-weight:bold">Aggiungi</FieldLabel>
+                            <FieldBody><NumericEdit @bind-Value="@selectedExperience" TValue="decimal" /></FieldBody>
+                        </Field>
+                    </CardText>
+                </CardBody>
+            </Card>
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="(() => HideModal(false))">Annulla</Button>
+            <Button Color="Color.Primary" Clicked="(() => HideModal(true))">Conferma</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+@code {
+
+    private Modal modalRef;
+
+    private Guid Id;
+    private string Name;
+    private decimal Exp = 0;
+
+    private decimal selectedExperience;
+
+    [Parameter]
+    public EventCallback OnExpAdded { get; set; }
+
+    public void ShowModal(Guid id, string name, decimal exp)
+    {
+        selectedExperience = 0;
+        Id = id;
+        Name = name;
+        Exp = exp;
+        modalRef.Show();
+    }
+
+    public async Task HideModal(bool isConfirmed)
+    {
+        if (isConfirmed)
+        {
+            await Http.PutAsJsonAsync<int?>(string.Concat(Configuration["AzureUrl"], $"api/character/add/experience/{selectedExperience}/{Id}"), null);
+            await OnExpAdded.InvokeAsync();
+        }
+        modalRef.Hide();
+    }
+
+}

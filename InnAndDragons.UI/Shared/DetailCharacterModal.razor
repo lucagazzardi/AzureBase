@@ -1,0 +1,77 @@
+﻿
+@using Microsoft.Extensions.Configuration;
+
+@inject HttpClient Http;
+@inject IConfiguration Configuration;
+
+<Modal @ref="modalRef">
+    <ModalContent IsCentered="true">
+        <ModalHeader>
+            <ModalTitle>Dettagli del personaggio</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            <Card> 
+                <CardHeader>
+                    <CardTitle Margin="Margin.Is0" Size="3" Style="font-weight:bold">
+                        @Character.name                        
+                    </CardTitle>                    
+                </CardHeader>
+                <CardBody>
+                    <CardText>                        
+                        <Fields>
+                            <Field>
+                                <FieldLabel Style="font-weight:bold">Classe</FieldLabel>
+                                <FieldBody><TextEdit ReadOnly="true" Text="@Character.classe.ToString()"></TextEdit></FieldBody>
+                            </Field>
+                            <Field>
+                                <FieldLabel Style="font-weight:bold">Razza</FieldLabel>
+                                <FieldBody><TextEdit ReadOnly="true" Text="@Character.race.ToString()"></TextEdit></FieldBody>
+                            </Field>
+                        </Fields>
+                        <Field>
+                            <FieldLabel Style="font-weight:bold">Livello</FieldLabel>
+                            <FieldBody><TextEdit ReadOnly="true" Text="@Character.level.ToString()"></TextEdit></FieldBody>
+                        </Field>
+                        <Field>
+                            <FieldLabel Style="font-weight:bold">Esperienza</FieldLabel>
+                            <FieldBody><TextEdit ReadOnly="true" Text="@Character.experience.ToString()"></TextEdit></FieldBody>
+                        </Field>
+                        <Field>
+                            <FieldLabel Style="font-weight:bold">Proprietario</FieldLabel>
+                            <FieldBody><TextEdit ReadOnly="true" Text="@Character.owner"></TextEdit></FieldBody>
+                        </Field>
+                    </CardText>
+                </CardBody>
+            </Card>
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="@HideModal">Chiudi</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+@code {
+
+    private Character Character { get; set; } = new Character();
+    private bool IsReadOnly { get; set; } = true;
+
+    private Modal modalRef;
+
+    protected override void OnInitialized()
+    {
+
+    }
+
+    public async Task ShowModal(Guid characterId)
+    {
+        Character = await Http.GetFromJsonAsync<Character>(string.Concat(Configuration["AzureUrl"], $"api/character/get/{characterId}"));
+        modalRef.Show();
+    }
+
+    public void HideModal()
+    {
+        modalRef.Hide();
+    }
+
+}

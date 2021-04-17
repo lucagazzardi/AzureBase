@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
+using Blazorise.RichTextEdit;
 
 namespace InnAndDragons.UI
 {
@@ -25,7 +26,8 @@ namespace InnAndDragons.UI
                     options.ChangeTextOnKeyPress = true;
                 })
                 .AddBootstrapProviders()
-                .AddFontAwesomeIcons();
+                .AddFontAwesomeIcons()
+                .AddBlazoriseRichTextEdit();
 
             builder.RootComponents.Add<App>("#app");
 
